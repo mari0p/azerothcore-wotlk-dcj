@@ -173,16 +173,16 @@ HodirHelperData hhd[4][4] =
 {
     // Alliance:
     {
-        {NPC_PAN_FIELD_MEDIC_PENNY, 2020.46f, -236.74f},
+        {NPC_MAH_SISSY_FLAMECUFFS, 2020.46f, -236.74f},
         {NPC_DAN_ELLIE_NIGHTFEATHER, 2007.21f, -241.57f},
-        {NPC_SAN_ELEMENTALIST_AVUUN, 1999.14f, -230.69f},
-        {NPC_MAN_MISSY_FLAMECUFFS, 1984.38f, -242.57f}
+        {NPC_DAH_EIVI_NIGHTFEATHER, 1999.14f, -230.69f},
+        {NPC_PAN_FIELD_MEDIC_PENNY, 1984.38f, -242.57f}
     },
     {
         {NPC_PAH_FIELD_MEDIC_JESSI, 2012.29f, -233.70f},
-        {NPC_DAH_EIVI_NIGHTFEATHER, 1995.75f, -241.32f},
+        {NPC_SAN_ELEMENTALIST_AVUUN, 1995.75f, -241.32f},
         {NPC_SAH_ELEMENTALIST_MAHFUUN, 1989.31f, -234.26f},
-        {NPC_MAH_SISSY_FLAMECUFFS, 1977.87f, -233.99f}
+        {NPC_MAN_MISSY_FLAMECUFFS, 1977.87f, -233.99f}
     },
     // Horde:
     {
@@ -272,7 +272,7 @@ public:
             events.ScheduleEvent(EVENT_FLASH_FREEZE, urand(48000, 49000));
             events.ScheduleEvent(EVENT_FREEZE, urand(17000,20000));
             events.ScheduleEvent(EVENT_BERSERK, 480000);
-            events.ScheduleEvent(EVENT_HARD_MODE_MISSED, 180000);
+            events.ScheduleEvent(EVENT_HARD_MODE_MISSED, 120000);
             Talk(TEXT_AGGRO);
 
             if (pInstance && pInstance->GetData(TYPE_HODIR) != DONE)

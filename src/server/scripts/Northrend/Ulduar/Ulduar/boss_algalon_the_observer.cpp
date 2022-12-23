@@ -678,11 +678,11 @@ public:
                     break;
                 case EVENT_QUANTUM_STRIKE:
                     me->CastSpell(me->GetVictim(), SPELL_QUANTUM_STRIKE, false);
-                    events.RepeatEvent(urand(3000, 4500));
+                    events.RepeatEvent(urand(3200, 4500));
                     break;
                 case EVENT_PHASE_PUNCH:
                     me->CastSpell(me->GetVictim(), SPELL_PHASE_PUNCH, false);
-                    events.RepeatEvent(15500);
+                    events.RepeatEvent(urand(15500, 16500));
                     break;
                 case EVENT_SUMMON_COLLAPSING_STAR:
                     Talk(SAY_ALGALON_COLLAPSING_STAR);

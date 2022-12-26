@@ -26,6 +26,7 @@
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "ulduar.h"
+#include <cmath>
 
 enum YoggSpells
 {
@@ -408,6 +409,7 @@ public:
             pos = me->GetHomePosition();
             me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
             Reset();
+            me->SetHealth(200000);
             me->setActive(false);
         }
 
@@ -450,6 +452,7 @@ public:
             _summonSpeed = 1.0f;
             _currentIllusion = urand(1, 3);
             _isIllusionReversed = urand(0, 1);
+            
 
             if (m_pInstance)
             {
@@ -476,6 +479,7 @@ public:
             AttackStart(target);
 
             me->CastSpell(me, SPELL_SANITY_BASE, true);
+            
 
             SaveKeepers();
 
@@ -722,7 +726,7 @@ public:
                 _initFight += diff;
                 if (_initFight > 5000)
                 {
-                    if (Unit* target = SelectTargetFromPlayerList(90))
+                    if (Unit* target = SelectTargetFromPlayerList(90, NULL, true))
                     {
                         _initFight = 0;
                         InitFight(target);
@@ -854,26 +858,31 @@ public:
                         break;
                     }
                 case EVENT_SARA_P2_SPAWN_START_TENTACLES:
-                    me->SetOrientation(M_PI);
-                    me->SetDisplayId(SARA_TRANSFORM_MODEL);
+                    {
+                        me->SetOrientation(M_PI);
+                        me->SetDisplayId(SARA_TRANSFORM_MODEL);
+                        // const Position Middle = {1980.28f, -25.5868f, 329.397f, M_PI * 1.5f};
+                        //1980.28f, -25.5868f, 329.397f, M_PI * 1.5f
 
-                    me->SendMonsterMove(me->GetPositionX(), me->GetPositionY(), 355, 2000, SPLINEFLAG_FLYING);
-                    me->SetPosition(me->GetPositionX(), me->GetPositionY(), 355, me->GetOrientation());
+                        float speed = me->GetDistance(1980.28f, 25.5868f, 355.0f) / 4.0f;
+                        me->MonsterMoveWithSpeed(1980.28f, -25.5868f, 355.0f, speed);
 
-                    SpawnTentacle(NPC_CRUSHER_TENTACLE);
-                    SpawnTentacle(NPC_CONSTRICTOR_TENTACLE);
-                    SpawnTentacle(NPC_CORRUPTOR_TENTACLE);
-                    SpawnTentacle(NPC_CORRUPTOR_TENTACLE);
+                        SpawnTentacle(NPC_CRUSHER_TENTACLE);
+                        SpawnTentacle(NPC_CONSTRICTOR_TENTACLE);
+                        SpawnTentacle(NPC_CORRUPTOR_TENTACLE);
+                        SpawnTentacle(NPC_CORRUPTOR_TENTACLE);
 
-                    events.ScheduleEvent(EVENT_SARA_P2_MALADY, 7000, 0, EVENT_PHASE_TWO);
-                    events.ScheduleEvent(EVENT_SARA_P2_PSYCHOSIS, 3000, 0, EVENT_PHASE_TWO);
-                    events.ScheduleEvent(EVENT_SARA_P2_DEATH_RAY, 15000, 0, EVENT_PHASE_TWO);
-                    events.ScheduleEvent(EVENT_SARA_P2_SUMMON_T1, 50000 + urand(0, 10000), 0, EVENT_PHASE_TWO);
-                    events.ScheduleEvent(EVENT_SARA_P2_SUMMON_T2, 15000 + urand(0, 5000), 0, EVENT_PHASE_TWO);
-                    events.ScheduleEvent(EVENT_SARA_P2_SUMMON_T3, 30000 + urand(0, 10000), 0, EVENT_PHASE_TWO);
-                    events.ScheduleEvent(EVENT_SARA_P2_BRAIN_LINK, 0, 0, EVENT_PHASE_TWO);
-                    events.ScheduleEvent(EVENT_SARA_P2_OPEN_PORTALS, 60000, 0, EVENT_PHASE_TWO);
-                    break;
+                        events.ScheduleEvent(EVENT_SARA_P2_MALADY, 7000, 0, EVENT_PHASE_TWO);
+                        events.ScheduleEvent(EVENT_SARA_P2_PSYCHOSIS, 3000, 0, EVENT_PHASE_TWO);
+                        events.ScheduleEvent(EVENT_SARA_P2_DEATH_RAY, 15000, 0, EVENT_PHASE_TWO);
+                        events.ScheduleEvent(EVENT_SARA_P2_SUMMON_T1, 50000 + urand(0, 10000), 0, EVENT_PHASE_TWO);
+                        events.ScheduleEvent(EVENT_SARA_P2_SUMMON_T2, 15000 + urand(0, 5000), 0, EVENT_PHASE_TWO);
+                        events.ScheduleEvent(EVENT_SARA_P2_SUMMON_T3, 30000 + urand(0, 10000), 0, EVENT_PHASE_TWO);
+                        events.ScheduleEvent(EVENT_SARA_P2_BRAIN_LINK, 0, 0, EVENT_PHASE_TWO);
+                        events.ScheduleEvent(EVENT_SARA_P2_OPEN_PORTALS, 60000, 0, EVENT_PHASE_TWO);
+
+                        break;
+                    }
                 case EVENT_SARA_P1_BERSERK:
                     me->CastSpell(me, SPELL_EXTINGUISH_ALL_LIFE, true);
                     events.RepeatEvent(5000);
@@ -1458,6 +1467,7 @@ public:
         {
             me->CastSpell(me, SPELL_DEATH_RAY_WARNING, true);
             _startTimer = 1;
+            me->SetWanderDistance(20.0f);
         }
 
         uint32 _startTimer;
@@ -1471,14 +1481,16 @@ public:
                 {
                     me->CastSpell(me, SPELL_DEATH_RAY_DAMAGE_VISUAL, true);
                     me->CastSpell(me, SPELL_DEATH_RAY_DAMAGE, true);
-
                     _startTimer = 0;
+
                     me->SetSpeed(MOVE_WALK, 2);
                     me->SetSpeed(MOVE_RUN, 2);
-                    me->GetMotionMaster()->MoveRandom(20.0f);
+
+                    me->GetMotionMaster()->MoveRandom(me->GetWanderDistance());
                 }
             }
         }
+
     };
 };
 

@@ -140,6 +140,42 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/, float maxRange
     }
 }
 
+void CreatureAI::ResetCooldownsOfPlayers(Creature *cr)
+{  
+    Map* map = cr->GetMap();
+
+    for(Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
+    {
+        Player* player = itr->GetSource();
+        
+            // Iterate through all spells on cooldown and reset them
+            SpellCooldowns const cooldowns = player->GetSpellCooldowns();
+            for (SpellCooldowns::const_iterator it = cooldowns.begin(); it != cooldowns.end(); ++it)
+            {
+                SpellInfo const* cdSpell = sSpellMgr->GetSpellInfo(it->first);
+
+                if (cdSpell->Id != ARMY_OF_THE_DEAD
+                    && cdSpell->Id != LAY_ON_HANDS
+                    && cdSpell->Id != ASTRAL_RECALL
+                    && cdSpell->Id != FIRE_ELEMENTAL_TOTEM
+                    && cdSpell->Id != EARTH_ELEMENTAL_TOTEM
+                    && cdSpell->Id != REINCARNATION
+                    && cdSpell->Id != RITUAL_OF_DOOM
+                    && cdSpell->Id != INFERNO)
+                {
+                    player->RemoveSpellCooldown(cdSpell->Id, true);
+                }
+            }
+
+            if (player->HasAura(57723))
+            {
+                Aura* aura = player->GetAura(57723);
+                player->RemoveAura(aura, AURA_REMOVE_BY_DEFAULT);
+            } 
+    }
+       
+}
+
 // scripts does not take care about MoveInLineOfSight loops
 // MoveInLineOfSight can be called inside another MoveInLineOfSight and cause stack overflow
 void CreatureAI::MoveInLineOfSight_Safe(Unit* who)

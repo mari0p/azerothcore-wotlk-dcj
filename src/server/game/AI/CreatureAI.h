@@ -51,6 +51,18 @@ enum SelectTargetType
     SELECT_TARGET_ANY_FRIEND,                               //AoE or Single Friend
 };
 
+//Excluded Spells by boss encounter_end CD Resets
+enum ExcludedSpells {
+    ARMY_OF_THE_DEAD = 42650,
+    EARTH_ELEMENTAL_TOTEM = 2062,
+    FIRE_ELEMENTAL_TOTEM = 2894,
+    ASTRAL_RECALL = 556,
+    REINCARNATION = 20608,
+    RITUAL_OF_DOOM = 18540,
+    LAY_ON_HANDS = 48788,
+    INFERNO = 1122,
+};
+
 //Spell Effects used by SelectSpell
 enum SelectEffect
 {
@@ -157,6 +169,8 @@ public:
     virtual void JustReachedHome() {}
 
     void DoZoneInCombat(Creature* creature = nullptr, float maxRangeToNearestTarget = 250.0f);
+
+    void ResetCooldownsOfPlayers(Creature *cr);
 
     // Called at text emote receive from player
     virtual void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) {}

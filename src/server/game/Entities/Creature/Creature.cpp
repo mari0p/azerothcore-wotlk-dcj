@@ -2708,6 +2708,12 @@ void Creature::SetInCombatWithZone()
         AI()->DoZoneInCombat();
 }
 
+void Creature::InitializePlayerCooldownReset(Creature *cr)
+{
+    if (IsAIEnabled)
+        AI()->ResetCooldownsOfPlayers(cr);
+}
+
 void Creature::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 {
     for (uint8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)

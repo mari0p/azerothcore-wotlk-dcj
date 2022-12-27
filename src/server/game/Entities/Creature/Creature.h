@@ -130,6 +130,7 @@ public:
 
     bool AIM_Initialize(CreatureAI* ai = nullptr);
     void Motion_Initialize();
+    void InitializePlayerCooldownReset(Creature *ai);
 
     [[nodiscard]] CreatureAI* AI() const { return (CreatureAI*)i_AI; }
 

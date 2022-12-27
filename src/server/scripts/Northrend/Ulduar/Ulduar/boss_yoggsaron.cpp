@@ -408,6 +408,7 @@ public:
             Position pos;
             pos = me->GetHomePosition();
             me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+            me->InitializePlayerCooldownReset(me);
             Reset();
             me->SetHealth(200000);
             me->setActive(false);
@@ -440,6 +441,7 @@ public:
             me->SetDisableGravity(true);
             EnableSara(false);
             SpawnClouds();
+            me->SetHealth(200000);
 
             _initFight = 1;
 
@@ -452,7 +454,7 @@ public:
             _summonSpeed = 1.0f;
             _currentIllusion = urand(1, 3);
             _isIllusionReversed = urand(0, 1);
-            
+
 
             if (m_pInstance)
             {
@@ -491,6 +493,7 @@ public:
             me->Yell("The time to strike at the head of the beast will soon be upon us! Focus your anger and hatred on his minions!", LANG_UNIVERSAL);
             me->PlayDirectSound(SARA_AGGRO);
             me->setActive(true);
+            
         }
 
         void SaveKeepers()
@@ -740,6 +743,7 @@ public:
             if (!SelectTargetFromPlayerList(90, SPELL_INSANE1))
             {
                 m_pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INSANE1);
+            
                 EnterEvadeMode(EVADE_REASON_OTHER);
                 return;
             }
@@ -829,15 +833,15 @@ public:
                     break;
                 case EVENT_SARA_P2_SUMMON_T1: // CRUSHER
                     SpawnTentacle(NPC_CRUSHER_TENTACLE);
-                    events.RepeatEvent((50000 + urand(0, 10000)) * _summonSpeed);
+                    events.RepeatEvent((50000 + urand(0, 5000)) * _summonSpeed);
                     break;
                 case EVENT_SARA_P2_SUMMON_T2: // CONSTRICTOR
                     SpawnTentacle(NPC_CONSTRICTOR_TENTACLE);
-                    events.RepeatEvent((15000 + urand(0, 5000)) * _summonSpeed);
+                    events.RepeatEvent((20000 + urand(0, 5000)) * _summonSpeed);
                     break;
                 case EVENT_SARA_P2_SUMMON_T3: // CORRUPTOR
                     SpawnTentacle(NPC_CORRUPTOR_TENTACLE);
-                    events.RepeatEvent((30000 + urand(0, 10000)) * _summonSpeed);
+                    events.RepeatEvent((25000 + urand(0, 5000)) * _summonSpeed);
                     break;
                 case EVENT_SARA_P2_BRAIN_LINK:
                     me->CastCustomSpell(SPELL_BRAIN_LINK, SPELLVALUE_MAX_TARGETS, 1, me, false);
@@ -848,7 +852,7 @@ public:
                         AddPortals();
                         EntryCheckPredicate pred(NPC_YOGG_SARON);
                         summons.DoAction(ACTION_YOGG_SARON_OPEN_PORTAL_YELL, pred);
-                        events.RepeatEvent(80000);
+                        events.RepeatEvent(90000);
                         break;
                     }
                 case EVENT_SARA_P2_REMOVE_STUN:
@@ -870,15 +874,14 @@ public:
                         SpawnTentacle(NPC_CRUSHER_TENTACLE);
                         SpawnTentacle(NPC_CONSTRICTOR_TENTACLE);
                         SpawnTentacle(NPC_CORRUPTOR_TENTACLE);
-                        SpawnTentacle(NPC_CORRUPTOR_TENTACLE);
-
-                        events.ScheduleEvent(EVENT_SARA_P2_MALADY, 7000, 0, EVENT_PHASE_TWO);
+ 
+                        events.ScheduleEvent(EVENT_SARA_P2_MALADY, 15000, 0, EVENT_PHASE_TWO);
                         events.ScheduleEvent(EVENT_SARA_P2_PSYCHOSIS, 3000, 0, EVENT_PHASE_TWO);
-                        events.ScheduleEvent(EVENT_SARA_P2_DEATH_RAY, 15000, 0, EVENT_PHASE_TWO);
-                        events.ScheduleEvent(EVENT_SARA_P2_SUMMON_T1, 50000 + urand(0, 10000), 0, EVENT_PHASE_TWO);
-                        events.ScheduleEvent(EVENT_SARA_P2_SUMMON_T2, 15000 + urand(0, 5000), 0, EVENT_PHASE_TWO);
-                        events.ScheduleEvent(EVENT_SARA_P2_SUMMON_T3, 30000 + urand(0, 10000), 0, EVENT_PHASE_TWO);
-                        events.ScheduleEvent(EVENT_SARA_P2_BRAIN_LINK, 0, 0, EVENT_PHASE_TWO);
+                        events.ScheduleEvent(EVENT_SARA_P2_DEATH_RAY, 25000, 0, EVENT_PHASE_TWO);
+                        events.ScheduleEvent(EVENT_SARA_P2_SUMMON_T1, 50000 + urand(0, 5000), 0, EVENT_PHASE_TWO);
+                        events.ScheduleEvent(EVENT_SARA_P2_SUMMON_T2, 20000 + urand(0, 5000), 0, EVENT_PHASE_TWO);
+                        events.ScheduleEvent(EVENT_SARA_P2_SUMMON_T3, 25000 + urand(0, 5000), 0, EVENT_PHASE_TWO);
+                        events.ScheduleEvent(EVENT_SARA_P2_BRAIN_LINK, 20000, 0, EVENT_PHASE_TWO);
                         events.ScheduleEvent(EVENT_SARA_P2_OPEN_PORTALS, 60000, 0, EVENT_PHASE_TWO);
 
                         break;
@@ -1107,6 +1110,8 @@ public:
                 itr->GetSource()->RemoveAura(SPELL_INSANE1);
                 itr->GetSource()->RemoveAura(SPELL_INSANE2);
             }
+
+            me->InitializePlayerCooldownReset(me);
         }
 
         void DoAction(int32 param) override
@@ -1134,8 +1139,8 @@ public:
             }
             else if (param == ACTION_YOGG_SARON_START_P3)
             {
-                me->SetHealth(me->GetMaxHealth() * 0.3f);
-                me->LowerPlayerDamageReq(me->GetMaxHealth() * 0.7f);
+                me->SetHealth(me->GetMaxHealth() * 0.29f);
+                me->LowerPlayerDamageReq(me->GetMaxHealth() * 0.71f);
 
                 me->RemoveAura(SPELL_SHADOW_BARRIER);
 

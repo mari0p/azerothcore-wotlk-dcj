@@ -455,7 +455,6 @@ public:
             _currentIllusion = urand(1, 3);
             _isIllusionReversed = urand(0, 1);
 
-
             if (m_pInstance)
             {
                 m_pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, CRITERIA_NOT_GETTING_OLDER);

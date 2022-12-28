@@ -819,13 +819,13 @@ public:
                         break;
                     }
                 case EVENT_SARA_P2_MALADY:
-                    //me->CastCustomSpell(SPELL_MALADY_OF_THE_MIND, SPELLVALUE_MAX_TARGETS, 1, me, false);
-                    //events.RepeatEvent(20000);
+                    me->CastCustomSpell(SPELL_MALADY_OF_THE_MIND, SPELLVALUE_MAX_TARGETS, 1, me, false);
+                    events.RepeatEvent(20000);
                     break;
                 case EVENT_SARA_P2_PSYCHOSIS:
-                    //SpellSounds();
-                    //me->CastCustomSpell(SPELL_PSYCHOSIS, SPELLVALUE_MAX_TARGETS, 1, me, false);
-                    //events.RepeatEvent(3500);
+                    SpellSounds();
+                    me->CastCustomSpell(SPELL_PSYCHOSIS, SPELLVALUE_MAX_TARGETS, 1, me, false);
+                    events.RepeatEvent(3500);
                     break;
                 case EVENT_SARA_P2_DEATH_RAY:
                     SummonDeathOrbs();

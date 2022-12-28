@@ -868,7 +868,7 @@ public:
                         // const Position Middle = {1980.28f, -25.5868f, 329.397f, M_PI * 1.5f};
                         //1980.28f, -25.5868f, 329.397f, M_PI * 1.5f
 
-                        float speed = me->GetDistance(1980.28f, 25.5868f, 355.0f) / 4.0f;
+                        float speed = me->GetDistance(1980.28f, -25.5868f, 355.0f) / 4.0f;
                         me->MonsterMoveWithSpeed(1980.28f, -25.5868f, 355.0f, speed);
 
                         SpawnTentacle(NPC_CRUSHER_TENTACLE);

@@ -409,8 +409,8 @@ public:
             pos = me->GetHomePosition();
             me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
             me->InitializePlayerCooldownReset(me);
-            Reset();
             me->SetHealth(200000);
+            Reset();
             me->setActive(false);
         }
 
@@ -454,6 +454,7 @@ public:
             _summonSpeed = 1.0f;
             _currentIllusion = urand(1, 3);
             _isIllusionReversed = urand(0, 1);
+
 
             if (m_pInstance)
             {
@@ -708,7 +709,7 @@ public:
                     events.SetPhase(EVENT_PHASE_TWO);
                     me->SetHealth(me->GetMaxHealth());
 
-                    if (Creature* cr = me->SummonCreature(NPC_YOGG_SARON, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), M_PI))
+                    if (Creature* cr = me->SummonCreature(NPC_YOGG_SARON, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()-5, M_PI))
                         cr->SetVisible(false);
 
                     _p2TalkTimer++;
@@ -818,13 +819,13 @@ public:
                         break;
                     }
                 case EVENT_SARA_P2_MALADY:
-                    me->CastCustomSpell(SPELL_MALADY_OF_THE_MIND, SPELLVALUE_MAX_TARGETS, 1, me, false);
-                    events.RepeatEvent(20000);
+                    //me->CastCustomSpell(SPELL_MALADY_OF_THE_MIND, SPELLVALUE_MAX_TARGETS, 1, me, false);
+                    //events.RepeatEvent(20000);
                     break;
                 case EVENT_SARA_P2_PSYCHOSIS:
-                    SpellSounds();
-                    me->CastCustomSpell(SPELL_PSYCHOSIS, SPELLVALUE_MAX_TARGETS, 1, me, false);
-                    events.RepeatEvent(3500);
+                    //SpellSounds();
+                    //me->CastCustomSpell(SPELL_PSYCHOSIS, SPELLVALUE_MAX_TARGETS, 1, me, false);
+                    //events.RepeatEvent(3500);
                     break;
                 case EVENT_SARA_P2_DEATH_RAY:
                     SummonDeathOrbs();
@@ -858,6 +859,13 @@ public:
                     {
                         me->RemoveAura(SPELL_SHATTERED_ILLUSION);
                         summons.DoAction(ACTION_REMOVE_STUN);
+                        SpawnTentacle(NPC_CRUSHER_TENTACLE);
+                        SpawnTentacle(NPC_CONSTRICTOR_TENTACLE);
+                        SpawnTentacle(NPC_CORRUPTOR_TENTACLE);
+
+                        events.RescheduleEvent(EVENT_SARA_P2_SUMMON_T1, 50000 + urand(0, 5000), 0, EVENT_PHASE_TWO);
+                        events.RescheduleEvent(EVENT_SARA_P2_SUMMON_T2, 20000 + urand(0, 5000), 0, EVENT_PHASE_TWO);
+                        events.RescheduleEvent(EVENT_SARA_P2_SUMMON_T3, 25000 + urand(0, 5000), 0, EVENT_PHASE_TWO);
                         break;
                     }
                 case EVENT_SARA_P2_SPAWN_START_TENTACLES:
@@ -866,7 +874,7 @@ public:
                         me->SetDisplayId(SARA_TRANSFORM_MODEL);
                         // const Position Middle = {1980.28f, -25.5868f, 329.397f, M_PI * 1.5f};
                         //1980.28f, -25.5868f, 329.397f, M_PI * 1.5f
-
+                        //const Position Middle = { 1980.28f, -25.5868f, 329.397f, M_PI * 1.5f };
                         float speed = me->GetDistance(1980.28f, -25.5868f, 355.0f) / 4.0f;
                         me->MonsterMoveWithSpeed(1980.28f, -25.5868f, 355.0f, speed);
 
@@ -1143,8 +1151,8 @@ public:
 
                 me->RemoveAura(SPELL_SHADOW_BARRIER);
 
-                events.ScheduleEvent(EVENT_YS_LUNATIC_GAZE, 7000);
-                events.ScheduleEvent(EVENT_YS_SHADOW_BEACON, 20000);
+                events.ScheduleEvent(EVENT_YS_LUNATIC_GAZE, 12000);
+                events.ScheduleEvent(EVENT_YS_SHADOW_BEACON, 45000);
                 events.ScheduleEvent(EVENT_YS_SUMMON_GUARDIAN, 0);
                 _thirdPhase = true;
 
@@ -1153,11 +1161,11 @@ public:
             }
             else if (param == ACTION_YOGG_SARON_HARD_MODE)
             {
-                events.ScheduleEvent(EVENT_YS_DEAFENING_ROAR, 50000);
+                events.ScheduleEvent(EVENT_YS_DEAFENING_ROAR, 30000);
             }
             else if (param == ACTION_YOGG_SARON_SHADOW_BEACON)
             {
-                events.RescheduleEvent(EVENT_YS_SHADOW_BEACON, 40000);
+                events.RescheduleEvent(EVENT_YS_SHADOW_BEACON, 45000);
             }
             else if (param == ACTION_REMOVE_STUN)
             {
@@ -1208,7 +1216,7 @@ public:
                     break;
                 case EVENT_YS_SHADOW_BEACON:
                     events.RepeatEvent(5000);
-                    me->CastCustomSpell(SPELL_SHADOW_BEACON, SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 3), me, false);
+                    me->CastCustomSpell(SPELL_SHADOW_BEACON, SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 4), me, false);
                     break;
                 case EVENT_YS_SUMMON_GUARDIAN:
                     SummonImmortalGuardian();
@@ -1273,13 +1281,25 @@ public:
 
         void PrepareChamberIllusion()
         {
-            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2126.13f, -65.488f, 239.721f, 1.99171f);
-            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2141.05f, -50.5146f, 239.751f, 2.72998f);
-            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2148.83f, -23.9568f, 239.721f, 3.04807f);
-            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2064.39f, -42.0691f, 239.719f, 0.0949586f);
-            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2064.29f, -7.13128f, 239.756f, 5.96974f);
-            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2117.31f, 14.897f, 239.731f, 4.32041f);
-            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2136.7f, 2.43262f, 239.72f, 3.90023f);
+            // new
+
+            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2147.375244f, -17.005449f, 239.732559f, 3.317168f); //back left
+            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2148.806396f, -32.934975f, 239.732559f, 3.175797f); //back right
+            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2138.298340f, -49.873337f, 239.732559f, 2.429668f);
+            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2137.554688f, -2.176431f, 239.732559f, 3.768772f);
+            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2070.342041f, -5.069428f, 239.732559f, 5.685132f); //entrance left
+            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2069.103760f, -43.215931f, 239.732559f, 0.477936f); //entrance right
+            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2114.384766, -65.351212f, 239.732559f, 1.809177f); //right
+            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2114.418457, 10.523395f, 239.732559f, 4.500732f); //left
+
+            //old
+            //me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2126.13f, -65.488f, 239.721f, 1.99171f);
+            //me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2141.05f, -50.5146f, 239.751f, 2.72998f);
+            //me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2148.83f, -23.9568f, 239.721f, 3.04807f);
+            //me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2064.39f, -42.0691f, 239.719f, 0.0949586f);
+            //me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2064.29f, -7.13128f, 239.756f, 5.96974f);
+            //me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2117.31f, 14.897f, 239.731f, 4.32041f);
+            //me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2136.7f, 2.43262f, 239.72f, 3.90023f);
 
             // Laughing Skulls
             if (urand(0, 1))
@@ -1319,13 +1339,16 @@ public:
                 me->SummonCreature(NPC_LAUGHING_SKULL, 1921, -158, 240, 0);
 
             // Influence
-            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 1958.29f, -128.65f, 239.99f, 3.61293f);
-            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 1957.78f, -134.368f, 239.99f, 3.35375f);
-            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 1953.04f, -137.843f, 239.99f, 3.55796f);
-            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 1900.31f, -93.5241f, 239.99f, 4.50043f);
-            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 1895.03f, -98.0773f, 239.99f, 4.88135f);
-            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 1895.19f, -104.587f, 239.99f, 5.02271f);
-            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 1923.31f, -125.98f, 240, 4.2f);
+            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 1951.319f, -131.337f, 239.99f, 3.594292f); //left
+            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 1951.806f, -137.432f, 239.99f, 3.437212f);
+            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 1944.579f, -131.337f, 239.99f, 3.429359f);
+            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 1904.561f, -104.177f, 239.99f, 4.858783f); //right
+            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 1900.552f, -111.558f, 239.99f, 4.968736f);
+            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 1898.013f, -103.606f, 239.99f, 4.925539f);
+            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 1917.48f, -135.786f, 240.0f, 4.2f); //back
+            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 1919.527f, -141.747f, 240.0f, 3.849f);
+            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 1911.689f, -137.442f, 240.0f, 4.485f);
+
 
             // Others
             me->SummonCreature(NPC_LICH_KING, 1906.98f, -153, 240, 4.2f);
@@ -1354,6 +1377,7 @@ public:
             me->SummonCreature(NPC_INFLUENCE_TENTACLE, 1923.16f, 97.5586f, 239.666f, 4.74635f);
             me->SummonCreature(NPC_INFLUENCE_TENTACLE, 1956.16f, 72.1403f, 239.666f, 3.19518f);
             me->SummonCreature(NPC_INFLUENCE_TENTACLE, 1944.81f, 92.3154f, 239.666f, 4.03556f);
+            me->SummonCreature(NPC_INFLUENCE_TENTACLE, 1903.656f, 86.140f, 239.666f, 5.63777f);
 
             // Others
             me->SummonCreature(NPC_GARONA, 1928.58f, 65.64f, 242.37f, 2.1f);
@@ -1370,7 +1394,7 @@ public:
             else if (param == ACTION_INFLUENCE_TENTACLE_DIED)
             {
                 _tentacleCount++;
-                if (_tentacleCount >= 7 /*TENTACLES COUNT*/)
+                if (_tentacleCount >= 9 /*TENTACLES COUNT*/)
                 {
                     // Stun
                     if (me->GetInstanceScript())
@@ -1387,7 +1411,7 @@ public:
             else if (param == ACTION_REMOVE_STUN)
                 return;
 
-            summons.DespawnAll();
+            summons.DespawnAll(); 
             switch(param)
             {
                 case ACTION_ILLUSION_STORMWIND:
@@ -1406,7 +1430,11 @@ public:
                     go->SetGoState(GO_STATE_READY);
 
             _activeIllusion = param - 1;
-            _tentacleCount = 0;
+            if(param == ACTION_ILLUSION_STORMWIND || param == ACTION_ILLUSION_DRAGONS)
+                _tentacleCount = 1;
+            else {
+                _tentacleCount = 0;
+            }
             _induceTimer = 1;
 
             me->CastSpell(me, SPELL_INDUCE_MADNESS, false);
@@ -1525,7 +1553,7 @@ public:
 
         void DamageTaken(Unit* who, uint32&, DamageEffectType damagetype, SpellSchoolMask) override
         {
-            if (who && damagetype == DIRECT_DAMAGE)
+            if (who && (damagetype == DIRECT_DAMAGE || (SPELL_SCHOOL_MASK_HOLY && damagetype == SPELL_DIRECT_DAMAGE)))
             {
                 DoResetThreatList();
                 me->AddThreat(who, 100000);

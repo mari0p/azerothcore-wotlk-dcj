@@ -366,6 +366,7 @@ public:
                 return;
             }
 
+            me->InitializePlayerCooldownReset(me);
             ScriptedAI::EnterEvadeMode(why);
         }
 
@@ -442,6 +443,7 @@ public:
                     me->InterruptNonMeleeSpells(false);
                     if (m_pInstance)
                         m_pInstance->SetData(TYPE_ALGALON, NOT_STARTED);
+                    me->InitializePlayerCooldownReset(me);
                     break;
                 case ACTION_INIT_ALGALON:
                     _firstPull = false;

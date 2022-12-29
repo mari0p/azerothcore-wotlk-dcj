@@ -568,7 +568,7 @@ public:
             // Spawn Portals
             for (uint8 i = 0; i < RAID_MODE(4, 10); ++i)
             {
-                if ((cr = me->SummonCreature(NPC_DESCEND_INTO_MADNESS, yoggPortalLoc[i].x, yoggPortalLoc[i].y, yoggPortalLoc[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 25000)))
+                if ((cr = me->SummonCreature(NPC_DESCEND_INTO_MADNESS, yoggPortalLoc[i].x, yoggPortalLoc[i].y, yoggPortalLoc[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 20000)))
                 {
                     cr->SetUnitFlag(UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE);
                     cr->SetArmor(_currentIllusion);
@@ -825,7 +825,7 @@ public:
                 case EVENT_SARA_P2_PSYCHOSIS:
                     SpellSounds();
                     me->CastCustomSpell(SPELL_PSYCHOSIS, SPELLVALUE_MAX_TARGETS, 1, me, false);
-                    events.RepeatEvent(3500);
+                    events.RepeatEvent(3000);
                     break;
                 case EVENT_SARA_P2_DEATH_RAY:
                     SummonDeathOrbs();
@@ -845,7 +845,7 @@ public:
                     break;
                 case EVENT_SARA_P2_BRAIN_LINK:
                     me->CastCustomSpell(SPELL_BRAIN_LINK, SPELLVALUE_MAX_TARGETS, 1, me, false);
-                    events.RepeatEvent(30000);
+                    events.RepeatEvent(40000);
                     break;
                 case EVENT_SARA_P2_OPEN_PORTALS:
                     {
@@ -875,7 +875,7 @@ public:
                         // const Position Middle = {1980.28f, -25.5868f, 329.397f, M_PI * 1.5f};
                         //1980.28f, -25.5868f, 329.397f, M_PI * 1.5f
                         //const Position Middle = { 1980.28f, -25.5868f, 329.397f, M_PI * 1.5f };
-                        float speed = me->GetDistance(1980.28f, -25.5868f, 355.0f) / 4.0f;
+                        float speed = me->GetDistance(1980.28f, -25.5868f, 355.0f) / 3.0f;
                         me->MonsterMoveWithSpeed(1980.28f, -25.5868f, 355.0f, speed);
 
                         SpawnTentacle(NPC_CRUSHER_TENTACLE);
@@ -1146,8 +1146,8 @@ public:
             }
             else if (param == ACTION_YOGG_SARON_START_P3)
             {
-                me->SetHealth(me->GetMaxHealth() * 0.29f);
-                me->LowerPlayerDamageReq(me->GetMaxHealth() * 0.71f);
+                me->SetHealth(me->GetMaxHealth() * 0.30f);
+                me->LowerPlayerDamageReq(me->GetMaxHealth() * 0.70f);
 
                 me->RemoveAura(SPELL_SHADOW_BARRIER);
 
@@ -1224,6 +1224,14 @@ public:
                     break;
             }
         }
+
+        void DamageTaken(Unit* who, uint32& damage, DamageEffectType, SpellSchoolMask) override
+        {
+            if (me->GetHealth() < (me->GetMaxHealth() * 0.01))
+            {
+                me->Kill(me, me);
+            }
+        }
     };
 };
 
@@ -1264,7 +1272,7 @@ public:
                 if (cr->GetPositionX() > 2000.0f && cr->GetPositionX() < 2150.0f)
                     cr->UpdateEntry(urand(NPC_CONSORT_FIRST, NPC_CONSORT_LAST));
                 // Icecrown Illusion
-                else if (cr->GetPositionY() > -150.0f && cr->GetPositionY() < -90.0f)
+                else if (cr->GetPositionY() > -170.0f && cr->GetPositionY() < -90.0f)
                 {
                     cr->SetStandState(UNIT_STAND_STATE_KNEEL);
                     cr->UpdateEntry(NPC_DEATHSWORN_ZEALOT);
@@ -1282,7 +1290,6 @@ public:
         void PrepareChamberIllusion()
         {
             // new
-
             me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2147.375244f, -17.005449f, 239.732559f, 3.317168f); //back left
             me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2148.806396f, -32.934975f, 239.732559f, 3.175797f); //back right
             me->SummonCreature(NPC_INFLUENCE_TENTACLE, 2138.298340f, -49.873337f, 239.732559f, 2.429668f);
@@ -1450,7 +1457,7 @@ public:
 
         void DamageTaken(Unit* who, uint32& damage, DamageEffectType, SpellSchoolMask) override
         {
-            if (_tentacleCount < 7) // if all tentacles aren't killed
+            if (_tentacleCount < 9) // if all tentacles aren't killed
             {
                 damage = 0;
                 if (who)

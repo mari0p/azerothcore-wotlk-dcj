@@ -110,6 +110,8 @@ enum HodirNPCs
     NPC_ICICLE_PACKED                   = 33173,
     NPC_TOASTY_FIRE                     = 33342,
     NPC_RARE_WINTER_CACHE_TRIGGER       = 88101,
+
+    NPC_STARLIGHT_DUMMY                 = 60000,
 };
 
 enum HodirEvents
@@ -173,16 +175,16 @@ HodirHelperData hhd[4][4] =
 {
     // Alliance:
     {
-        {NPC_MAH_SISSY_FLAMECUFFS, 2020.46f, -236.74f},
-        {NPC_DAN_ELLIE_NIGHTFEATHER, 2007.21f, -241.57f},
+        {NPC_MAN_MISSY_FLAMECUFFS, 2020.46f, -236.74f},
+        {NPC_SAN_ELEMENTALIST_AVUUN, 2007.21f, -241.57f}, 
         {NPC_DAH_EIVI_NIGHTFEATHER, 1999.14f, -230.69f},
         {NPC_PAN_FIELD_MEDIC_PENNY, 1984.38f, -242.57f}
     },
     {
         {NPC_PAH_FIELD_MEDIC_JESSI, 2012.29f, -233.70f},
-        {NPC_SAN_ELEMENTALIST_AVUUN, 1995.75f, -241.32f},
+        {NPC_MAN_MISSY_FLAMECUFFS, 1995.75f, -241.32f},
         {NPC_SAH_ELEMENTALIST_MAHFUUN, 1989.31f, -234.26f},
-        {NPC_MAN_MISSY_FLAMECUFFS, 1977.87f, -233.99f}
+        {NPC_DAN_ELLIE_NIGHTFEATHER, 1977.87f, -233.99f}
     },
     // Horde:
     {
@@ -234,8 +236,10 @@ public:
         const Position ENTRANCE_DOOR{ 1999.160034f, -297.792999f, 431.960999f, 0 };
         const Position EXIT_DOOR{ 1999.709961f, -166.259003f, 432.822998f, 0 };
 
+
         void Reset() override
         {
+
             events.Reset();
             summons.DespawnAll();
             berserk = false;
@@ -244,6 +248,7 @@ public:
             bAchievCacheRare = true;
             bAchievCoolestFriends = true;
             me->SetSheath(SHEATH_STATE_MELEE);
+            me->SetReactState(REACT_AGGRESSIVE);
 
             // Reset the spells cast after wipe
             me->RemoveAllAuras();
@@ -266,13 +271,15 @@ public:
 
         void EnterCombat(Unit*  /*pWho*/) override
         {
+
             me->CastSpell(me, SPELL_BITING_COLD_BOSS_AURA, true);
             SmallIcicles(true);
             events.Reset();
-            events.ScheduleEvent(EVENT_FLASH_FREEZE, urand(48000, 49000));
-            events.ScheduleEvent(EVENT_FREEZE, urand(17000,20000));
+            events.ScheduleEvent(EVENT_FLASH_FREEZE, urand(50000, 70000));
+            events.ScheduleEvent(EVENT_FREEZE, urand(12000,25000));
             events.ScheduleEvent(EVENT_BERSERK, 480000);
             events.ScheduleEvent(EVENT_HARD_MODE_MISSED, 120000);
+            events.ScheduleEvent(EVENT_FROZEN_BLOWS, urand(45000, 75000));
             Talk(TEXT_AGGRO);
 
             if (pInstance && pInstance->GetData(TYPE_HODIR) != DONE)
@@ -334,7 +341,7 @@ public:
 
         void DamageTaken(Unit*, uint32& damage, DamageEffectType, SpellSchoolMask) override
         {
-            if (damage >= me->GetHealth() || me->GetHealth() < 150000)
+            if (damage >= me->GetHealth() || me->GetHealth() < 300000)
             {
                 damage = 0;
                 me->SetReactState(REACT_PASSIVE);
@@ -344,6 +351,7 @@ public:
                     {
                         pInstance->SetData(TYPE_HODIR, DONE);
                         me->CastSpell(me, 64899, true); // credit
+                        me->InitializePlayerCooldownReset(me);
                     }
 
                     me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
@@ -386,11 +394,27 @@ public:
             }
         }
 
+        void EnterEvadeMode(EvadeReason why) override
+        {
+            me->InitializePlayerCooldownReset(me);
+            CreatureAI::EnterEvadeMode(why);
+        }
+  
         void UpdateAI(uint32 diff) override
         {
+            if (!me->IsInCombat() && pInstance->GetData(TYPE_HODIR) != DONE)
+            {
+                if (Unit* target = SelectTargetFromPlayerList(30, NULL, true))
+                    {
+                        me->AI()->AttackStart(target);
+                        return;
+                    }
+                }
+            
+
             if (me->GetPositionY() <= ENTRANCE_DOOR.GetPositionY() || me->GetPositionY() >= EXIT_DOOR.GetPositionY())
             {
-                boss_hodirAI::EnterEvadeMode();
+                boss_hodirAI::EnterEvadeMode(EVADE_REASON_OTHER);
                 return;
             }
 
@@ -401,7 +425,7 @@ public:
                     Map::PlayerList const& pl = me->GetMap()->GetPlayers();
                     for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
                         itr->GetSource()->CastSpell(itr->GetSource(), SPELL_FLASH_FREEZE_INSTAKILL, true);
-                    EnterEvadeMode();
+                    EnterEvadeMode(EVADE_REASON_OTHER);
                 }
                 return;
             }
@@ -461,10 +485,12 @@ public:
                         Talk(TEXT_FLASH_FREEZE);
                         Talk(TEXT_EMOTE_FREEZE);
                         SmallIcicles(false);
-                        events.ScheduleEvent(EVENT_FLASH_FREEZE, urand(48000, 49000));
+                        events.ScheduleEvent(EVENT_FLASH_FREEZE, urand(60000, 65000));
                         events.ScheduleEvent(EVENT_SMALL_ICICLES_ENABLE, Is25ManRaid() ? 12000 : 24000);
-                        events.ScheduleEvent(EVENT_FROZEN_BLOWS, 15000);
-                        events.RescheduleEvent(EVENT_FREEZE, urand(17000, 20000));
+                        if (!me->HasAura(SPELL_FROZEN_BLOWS)) {
+                            events.RescheduleEvent(EVENT_FROZEN_BLOWS, 15000);
+                        }
+                        events.RescheduleEvent(EVENT_FREEZE, urand(20000, 25000));
                     }
                     break;
                 case EVENT_SMALL_ICICLES_ENABLE:
@@ -477,6 +503,7 @@ public:
                         Talk(TEXT_EMOTE_BLOW);
                         Talk(TEXT_STALACTITE);
                         me->CastSpell(me, Is25ManRaid()? SPELL_FROZEN_BLOWS_25 : SPELL_FROZEN_BLOWS_10, true);
+                        events.ScheduleEvent(EVENT_FROZEN_BLOWS, urand(50000, 65000));
                     }
                     break;
                 case EVENT_FREEZE:
@@ -488,7 +515,7 @@ public:
                     {
                         me->CastSpell(target, SPELL_FREEZE, false);
                     }
-                    events.RescheduleEvent(EVENT_FREEZE, urand(17000, 20000));
+                    events.RescheduleEvent(EVENT_FREEZE, urand(15000, 20000));
                     break;
             }
 
@@ -620,8 +647,8 @@ public:
     {
         npc_ulduar_icicleAI(Creature* pCreature) : NullCreatureAI(pCreature)
         {
-            timer1 = 2000;
-            timer2 = 5000;
+            timer1 = 3000;
+            timer2 = 6000;
         }
 
         uint16 timer1;
@@ -862,15 +889,17 @@ public:
 
     struct npc_ulduar_hodir_druidAI : public ScriptedAI
     {
-        npc_ulduar_hodir_druidAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_ulduar_hodir_druidAI(Creature* pCreature) : ScriptedAI(pCreature), summonsdruid(me)
         {
             pInstance = me->GetInstanceScript();
             events.Reset();
             me->SetReactState(REACT_PASSIVE);
+            me->SetDisplayId(15374);
         }
 
         EventMap events;
         InstanceScript* pInstance;
+        SummonList summonsdruid;
 
         void AttackStart(Unit* who) override
         {
@@ -880,12 +909,12 @@ public:
         void ScheduleAbilities()
         {
             events.ScheduleEvent(EVENT_DRUID_WRATH, 1600);
-            events.ScheduleEvent(EVENT_DRUID_STARLIGHT, 10000);
+            events.ScheduleEvent(EVENT_DRUID_STARLIGHT, 15000);
         }
 
         void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
-            if(spell->Id == SPELL_FLASH_FREEZE_TRAPPED_NPC)
+            if (spell->Id == SPELL_FLASH_FREEZE_TRAPPED_NPC)
             {
                 events.Reset();
                 events.ScheduleEvent(EVENT_TRY_FREE_HELPER, 2000);
@@ -896,47 +925,57 @@ public:
         {
             events.Update(diff);
 
-            if( me->HasUnitState(UNIT_STATE_CASTING) )
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            switch( events.ExecuteEvent() )
+            switch (events.ExecuteEvent())
             {
-                case 0:
-                    break;
-                case EVENT_TRY_FREE_HELPER:
+            case 0:
+                break;
+            case EVENT_TRY_FREE_HELPER:
+            {
+                if (!me->HasAura(SPELL_FLASH_FREEZE_TRAPPED_NPC))
+                    if (pInstance)
+                        if (ObjectGuid g = pInstance->GetGuidData(TYPE_HODIR))
+                            if (Creature* hodir = ObjectAccessor::GetCreature(*me, g))
+                            {
+                                AttackStart(hodir);
+                                ScheduleAbilities();
+                                break;
+                            }
+                events.RepeatEvent(2000);
+            }
+            break;
+            case EVENT_DRUID_WRATH:
+                if (Unit* victim = me->GetVictim())
+                    me->CastSpell(victim, SPELL_DRUID_WRATH, false);
+                events.RepeatEvent(1600);
+                break;
+            case EVENT_DRUID_STARLIGHT:
+                if (me->GetPositionZ() < 433.0f) // ensure npc is on the ground
+                {
+
+                    uint32 dist = urand(2, 12);
+                    float o = rand_norm() * M_PI * 2;
+
+                    Creature* hodir = pInstance->instance->GetCreature(pInstance->GetGuidData(TYPE_HODIR));
+
+                    if (Creature* cr = hodir->SummonCreature(NPC_STARLIGHT_DUMMY, me->GetPositionX() + dist * cos(o), me->GetPositionY() + dist * std::sin(o), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 60000))
                     {
-                        if( !me->HasAura(SPELL_FLASH_FREEZE_TRAPPED_NPC) )
-                            if( pInstance )
-                                if( ObjectGuid g = pInstance->GetGuidData(TYPE_HODIR) )
-                                    if( Creature* hodir = ObjectAccessor::GetCreature(*me, g) )
-                                    {
-                                        AttackStart(hodir);
-                                        ScheduleAbilities();
-                                        break;
-                                    }
-                        events.RepeatEvent(2000);
-                    }
-                    break;
-                case EVENT_DRUID_WRATH:
-                    if (Unit* victim = me->GetVictim())
-                        me->CastSpell(victim, SPELL_DRUID_WRATH, false);
-                    events.RepeatEvent(1600);
-                    break;
-                case EVENT_DRUID_STARLIGHT:
-                    if (me->GetPositionZ() < 433.0f) // ensure npc is on the ground
-                    {
-                        me->CastSpell(me, SPELL_DRUID_STARLIGHT_AREA_AURA, false);
                         events.RepeatEvent(15000);
                         break;
                     }
-                    events.RepeatEvent(3000);
-                    break;
+                }
+                events.RepeatEvent(3000);
+                break;
             }
         }
 
         void MoveInLineOfSight(Unit*  /*who*/) override {}
 
         void EnterEvadeMode(EvadeReason /*why*/) override {}
+        
+        
         bool CanAIAttack(Unit const* t) const override { return t->GetEntry() == NPC_HODIR; }
 
         void JustDied(Unit* /*killer*/) override
@@ -978,7 +1017,7 @@ public:
         void ScheduleAbilities()
         {
             events.ScheduleEvent(EVENT_SHAMAN_LAVA_BURST, 2600);
-            events.ScheduleEvent(EVENT_SHAMAN_STORM_CLOUD, 10000);
+            events.ScheduleEvent(EVENT_SHAMAN_STORM_CLOUD, 27000);
         }
 
         void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
@@ -1030,7 +1069,7 @@ public:
                 case EVENT_SHAMAN_STORM_CLOUD:
                     if (Player* target = ScriptedAI::SelectTargetFromPlayerList(35.0f, SPELL_SHAMAN_STORM_CLOUD))
                         me->CastSpell(target, SPELL_SHAMAN_STORM_CLOUD, false);
-                    events.RepeatEvent(30000);
+                    events.RepeatEvent(27000);
                     break;
             }
         }
@@ -1079,7 +1118,7 @@ public:
         void ScheduleAbilities()
         {
             events.ScheduleEvent(EVENT_MAGE_FIREBALL, 3100);
-            events.ScheduleEvent(EVENT_MAGE_TOASTY_FIRE, 6000);
+            events.ScheduleEvent(EVENT_MAGE_TOASTY_FIRE, 12000);
             events.ScheduleEvent(EVENT_MAGE_MELT_ICE, 1000);
         }
 
@@ -1124,7 +1163,7 @@ public:
                     break;
                 case EVENT_MAGE_TOASTY_FIRE:
                     me->CastSpell(me, SPELL_MAGE_CONJURE_TOASTY_FIRE, false);
-                    events.RepeatEvent(10000);
+                    events.RepeatEvent(12000);
                     break;
                 case EVENT_MAGE_MELT_ICE:
                     {
@@ -1161,6 +1200,26 @@ public:
             if (pInstance)
                 if (Creature* hodir = pInstance->instance->GetCreature(pInstance->GetGuidData(TYPE_HODIR)))
                     hodir->AI()->SetData(4, 1);
+        }
+    };
+};
+
+class npc_ulduar_hodir_starlight_dummy : public CreatureScript
+{
+public:
+    npc_ulduar_hodir_starlight_dummy() : CreatureScript("npc_ulduar_hodir_starlight_dummy") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const override
+    {
+        return GetUlduarAI<npc_ulduar_hodir_starlight_dummyAI>(pCreature);
+    }
+
+    struct npc_ulduar_hodir_starlight_dummyAI : public NullCreatureAI
+    {
+        npc_ulduar_hodir_starlight_dummyAI(Creature* pCreature) : NullCreatureAI(pCreature)
+        {
+            me->CastSpell(me, SPELL_DRUID_STARLIGHT_AREA_AURA, true);
+           
         }
     };
 };
@@ -1631,4 +1690,6 @@ void AddSC_boss_hodir()
     new achievement_staying_buffed_all_winter_25();
     new spell_hodir_toasty_fire();
     new spell_hodir_starlight();
+
+    new npc_ulduar_hodir_starlight_dummy();
 }

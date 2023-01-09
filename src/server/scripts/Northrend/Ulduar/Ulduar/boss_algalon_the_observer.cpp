@@ -505,7 +505,7 @@ public:
             events.ScheduleEvent(EVENT_PHASE_PUNCH, 15500 + introDelay);
             events.ScheduleEvent(EVENT_SUMMON_COLLAPSING_STAR, 16500 + introDelay);
             events.ScheduleEvent(EVENT_COSMIC_SMASH, 25000 + introDelay);
-            events.ScheduleEvent(EVENT_ACTIVATE_LIVING_CONSTELLATION, 50500 + introDelay);
+            events.ScheduleEvent(EVENT_ACTIVATE_LIVING_CONSTELLATION, 60000 + introDelay);
             events.ScheduleEvent(EVENT_BIG_BANG, 90000 + introDelay);
             events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 360000 + introDelay);
 
@@ -680,7 +680,7 @@ public:
                     break;
                 case EVENT_QUANTUM_STRIKE:
                     me->CastSpell(me->GetVictim(), SPELL_QUANTUM_STRIKE, false);
-                    events.RepeatEvent(urand(3200, 4500));
+                    events.RepeatEvent(3700);
                     break;
                 case EVENT_PHASE_PUNCH:
                     me->CastSpell(me->GetVictim(), SPELL_PHASE_PUNCH, false);
@@ -696,7 +696,7 @@ public:
                 case EVENT_COSMIC_SMASH:
                     Talk(EMOTE_ALGALON_COSMIC_SMASH);
                     me->CastCustomSpell(SPELL_COSMIC_SMASH, SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 3), (Unit*)nullptr);
-                    events.RepeatEvent(25500);
+                    events.RepeatEvent(25000);
                     break;
                 case EVENT_ACTIVATE_LIVING_CONSTELLATION:
                     {
@@ -929,8 +929,9 @@ public:
     {
         npc_collapsing_starAI(Creature* creature) : NullCreatureAI(creature)
         {
-            creature->GetMotionMaster()->MoveRandom(25.0f);
-            creature->CastSpell(creature, SPELL_COLLAPSE, true);
+            me->SetWanderDistance(25.0f);
+            me->GetMotionMaster()->MoveRandom(me->GetWanderDistance());
+            me->CastSpell(me, SPELL_COLLAPSE, true);
         }
 
         void JustSummoned(Creature* summon) override
@@ -974,7 +975,7 @@ public:
         void Reset() override
         {
             events.Reset();
-            events.ScheduleEvent(EVENT_ARCANE_BARRAGE, 2500);
+            events.ScheduleEvent(EVENT_ARCANE_BARRAGE, 4000);
             _isActive = false;
         }
 
@@ -1032,8 +1033,11 @@ public:
             switch (events.ExecuteEvent())
             {
                 case EVENT_ARCANE_BARRAGE:
-                    me->CastCustomSpell(SPELL_ARCANE_BARRAGE, SPELLVALUE_MAX_TARGETS, 1, (Unit*)nullptr, true);
-                    events.RepeatEvent(2500);
+
+                    me->CastSpell(SelectTargetFromPlayerList(45.0f), 64607, TRIGGERED_CAST_DIRECTLY);
+                    //me->CastSpell(SelectTargetFromPlayerList(250.0f), 64607, false);
+                    //me->CastCustomSpell(64607, SPELLVALUE_MAX_TARGETS, 1, (Unit*)nullptr, true);
+                    events.RepeatEvent(4000);
                     break;
                 case EVENT_RESUME_UPDATING:
                     events.SetPhase(0);
@@ -1303,7 +1307,7 @@ public:
 
             float distance = GetHitUnit()->GetDistance2d(GetExplTargetDest()->GetPositionX(), GetExplTargetDest()->GetPositionY());
             if (distance >= 10.0f)
-                SetHitDamage(int32(float(GetHitDamage()) / distance));
+                SetHitDamage(int32(float(GetHitDamage()) / distance / 2));
             else if (distance > 6.0f)
                 SetHitDamage(int32(float(GetHitDamage()) / distance) * 2);
         }

@@ -3496,6 +3496,12 @@ bool Creature::IsMovementPreventedByCasting() const
         return false;
     }
 
+    Spell* castedSpell = m_currentSpells[CURRENT_GENERIC_SPELL];
+    if (HasUnitState(UNIT_STATE_CASTING) && castedSpell && castedSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_ALLOW_ACTION_DURING_CHANNEL))
+    {
+        return false;
+    }
+
     if (HasSpellFocus())
     {
         return true;

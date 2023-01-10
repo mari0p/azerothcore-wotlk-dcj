@@ -538,10 +538,32 @@ public:
 
         void SpawnTentacle(uint32 entry)
         {
-            uint32 dist = urand(38, 48);
-            float o = rand_norm() * M_PI * 2;
-            float Zplus = (dist - 38) / 6.5f;
-            if (Creature* cr = me->SummonCreature(entry, me->GetPositionX() + dist * cos(o), me->GetPositionY() + dist * std::sin(o), 327.2 + Zplus, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+            float x, y, z;
+
+            if (entry == NPC_CONSTRICTOR_TENTACLE)
+            {
+                //cast nearby a randomly selected player
+                Unit* target = SelectTargetFromPlayerList(90, NULL, true);
+                uint32 dist = urand(2, 5);
+                float o = rand_norm() * M_PI * 2;
+                float Zplus = (dist - 2) / 1.5f;
+                 
+                x = target->GetPositionX() + dist * cos(o);
+                y = target->GetPositionY() + dist * std::sin(o);
+                z = 327.2 + Zplus;
+            }
+            else
+            {
+                uint32 dist = urand(38, 48);
+                float o = rand_norm() * M_PI * 2;
+                float Zplus = (dist - 38) / 6.5f;
+
+                x = me->GetPositionX() + dist * cos(o);
+                y = me->GetPositionY() + dist * std::sin(o);
+                z = 327.2 + Zplus;
+            }
+
+            if (Creature* cr = me->SummonCreature(entry,x , y, z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
             {
                 cr->CastSpell(cr, SPELL_TENTACLE_ERUPT, true);
                 cr->CastSpell(cr, SPELL_VOID_ZONE_SMALL, true);

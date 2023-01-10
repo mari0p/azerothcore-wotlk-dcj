@@ -1034,9 +1034,9 @@ public:
             {
                 case EVENT_ARCANE_BARRAGE:
 
-                    me->CastSpell(SelectTargetFromPlayerList(45.0f), 64607, TRIGGERED_CAST_DIRECTLY);
+                    //me->CastSpell(SelectTargetFromPlayerList(45.0f), 64607, TRIGGERED_CAST_DIRECTLY);
                     //me->CastSpell(SelectTargetFromPlayerList(250.0f), 64607, false);
-                    //me->CastCustomSpell(64607, SPELLVALUE_MAX_TARGETS, 1, (Unit*)nullptr, true);
+                    me->CastCustomSpell(64607, SPELLVALUE_MAX_TARGETS, 1, (Unit*)nullptr, true);
                     events.RepeatEvent(4000);
                     break;
                 case EVENT_RESUME_UPDATING:

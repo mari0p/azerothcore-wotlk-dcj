@@ -538,30 +538,34 @@ public:
 
         void SpawnTentacle(uint32 entry)
         {
-            float x, y, z;
+            float x, y, z, zPlus;
 
-            if (entry == NPC_CONSTRICTOR_TENTACLE)
+            Unit* target = SelectTargetFromPlayerList(90, NULL, true);
+
+            if (entry == NPC_CONSTRICTOR_TENTACLE && target)
             {
-                //cast nearby a randomly selected player
-                Unit* target = SelectTargetFromPlayerList(90, NULL, true);
+                //spawn nearby a randomly selected player
+                
                 uint32 dist = urand(2, 5);
                 float o = rand_norm() * M_PI * 2;
-                float Zplus = (dist - 2) / 1.5f;
-                 
+                
                 x = target->GetPositionX() + dist * cos(o);
                 y = target->GetPositionY() + dist * std::sin(o);
-                z = 327.2 + Zplus;
             }
             else
             {
+                //spawn randomly around the boss
                 uint32 dist = urand(38, 48);
                 float o = rand_norm() * M_PI * 2;
-                float Zplus = (dist - 38) / 6.5f;
-
+                
                 x = me->GetPositionX() + dist * cos(o);
                 y = me->GetPositionY() + dist * std::sin(o);
-                z = 327.2 + Zplus;
+                
             }
+
+            float distancefromBoss = sqrtf((x - me->GetPositionX()) * (x - me->GetPositionX()) + (y - me->GetPositionY()) * (y - me->GetPositionY()));
+
+            z = 327.2 + std::max(0.0f,(distancefromBoss-38.f)/6.5f);
 
             if (Creature* cr = me->SummonCreature(entry,x , y, z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
             {

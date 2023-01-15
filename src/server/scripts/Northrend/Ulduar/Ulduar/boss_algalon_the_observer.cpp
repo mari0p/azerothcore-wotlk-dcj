@@ -4,6 +4,7 @@
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your
+
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -1320,7 +1321,7 @@ public:
             if (distance >= 10.0f)
                 SetHitDamage(int32(float(GetHitDamage()) / distance / 1.6));
             else if (distance > 6.0f)
-                SetHitDamage(int32(float(GetHitDamage()) / distance) * 2);
+                SetHitDamage(int32(float(GetHitDamage()) / distance));
         }
 
         void Register() override

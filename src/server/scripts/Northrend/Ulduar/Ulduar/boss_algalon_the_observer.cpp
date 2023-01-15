@@ -1320,7 +1320,7 @@ public:
             float distance = GetHitUnit()->GetDistance2d(GetExplTargetDest()->GetPositionX(), GetExplTargetDest()->GetPositionY());
             if (distance >= 10.0f)
                 SetHitDamage(int32(float(GetHitDamage()) / distance / 1.6));
-            else if (distance > 6.0f)
+            else if (distance > 5.0f)
                 SetHitDamage(int32(float(GetHitDamage()) / distance));
         }
 

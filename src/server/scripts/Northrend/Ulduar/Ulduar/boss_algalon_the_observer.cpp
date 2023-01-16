@@ -148,6 +148,7 @@ enum Events
     EVENT_DESPAWN_ALGALON_3         = 38,
     EVENT_DESPAWN_ALGALON_4         = 39,
     EVENT_DESPAWN_ALGALON_5         = 40,
+    EVENT_ALGALON_REMOVE_ACTIONS    = 42,
 
     // Living Constellation
     EVENT_ARCANE_BARRAGE            = 41,
@@ -732,8 +733,15 @@ public:
 
                         me->CastSpell((Unit*)nullptr, SPELL_BIG_BANG, false);
                         events.RepeatEvent(90500);
+                        events.ScheduleEvent(EVENT_DELAY_ALGALON_ACTIONS_END, 8000);
                         break;
                     }
+                 case EVENT_DELAY_ALGALON_ACTIONS_END:
+                    {
+                        me->CastSpell((Unit*)nullptr, 99999, false);
+                        break;
+                    }
+                    
                 case EVENT_ASCEND_TO_THE_HEAVENS:
                     Talk(SAY_ALGALON_ASCEND);
                     me->CastSpell((Unit*)nullptr, SPELL_ASCEND_TO_THE_HEAVENS, false);

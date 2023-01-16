@@ -148,7 +148,7 @@ enum Events
     EVENT_DESPAWN_ALGALON_3         = 38,
     EVENT_DESPAWN_ALGALON_4         = 39,
     EVENT_DESPAWN_ALGALON_5         = 40,
-    EVENT_ALGALON_REMOVE_ACTIONS    = 42,
+    EVENT_DELAY_ALGALON_ACTIONS_END = 42,
 
     // Living Constellation
     EVENT_ARCANE_BARRAGE            = 41,

@@ -19120,6 +19120,10 @@ void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
     if (newPhaseMask == GetPhaseMask())
         return;
 
+    if (ToPlayer()) {
+        ToPlayer()->UnsummonPetTemporaryIfAny();
+    }
+    
     if (IsInWorld())
     {
         // xinef: to comment, bellow line should be removed
@@ -19193,6 +19197,10 @@ void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
     if (update)
     {
         UpdateObjectVisibility();
+    }
+    
+    if (ToPlayer()) {
+        ToPlayer()->ResummonPetTemporaryUnSummonedIfAny();
     }
 }
 

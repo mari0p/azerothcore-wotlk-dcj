@@ -283,6 +283,7 @@ public:
             _fedOnTears = true;
             _firstPull = true;
             _fightWon = false;
+            _starsSummoned = false;
             m_pInstance = me->GetInstanceScript();
         }
 
@@ -295,6 +296,7 @@ public:
         bool _phaseTwo;
         bool _fedOnTears;
         bool _heraldOfTheTitans;
+        bool _starsSummoned;
 
         bool IsValidHeraldItem(ItemTemplate const* item)
         {
@@ -398,6 +400,7 @@ public:
 
             _phaseTwo = false;
             _heraldOfTheTitans = true;
+            _starsSummoned = false;
 
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_ALGALON, NOT_STARTED);
@@ -461,6 +464,7 @@ public:
                 case ACTION_INIT_ALGALON:
                     _firstPull = false;
                     _fedOnTears = false;
+                    _starsSummoned = false;
                     me->SetImmuneToPC(false);
                     break;
                 case ACTION_ASCEND:
@@ -496,6 +500,7 @@ public:
             me->SetImmuneToNPC(true);
             events.Reset();
             events.SetPhase(PHASE_ROLE_PLAY);
+            _starsSummoned = false;
 
             if (!_firstPull)
             {
@@ -702,8 +707,9 @@ public:
                 case EVENT_SUMMON_COLLAPSING_STAR:
                     Talk(SAY_ALGALON_COLLAPSING_STAR);
                     Talk(EMOTE_ALGALON_COLLAPSING_STAR);
-                    for (uint8 i = 0; i < COLLAPSING_STAR_COUNT; ++i)
+                    for (uint8 i = _starsSummoned; i < COLLAPSING_STAR_COUNT; ++i)
                         me->SummonCreature(NPC_COLLAPSING_STAR, CollapsingStarPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+                    _starsSummoned = true;
                     events.RepeatEvent(60000);
                     break;
                 case EVENT_COSMIC_SMASH:
